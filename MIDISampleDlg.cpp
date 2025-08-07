@@ -8,6 +8,8 @@
 #include "afxdialogex.h"
 #include "MidiInputThread.h"
 #include <Dbt.h>
+#include "DlgNoteTrainerSettings.h"
+#include "NoteTrainerSettings.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -63,6 +65,7 @@ BEGIN_MESSAGE_MAP(CMIDISampleDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_CLEAR_LOG, &CMIDISampleDlg::OnBnClickedBtnClearLog)
 	ON_BN_CLICKED(IDC_BTN_MIDI_TRACING, &CMIDISampleDlg::OnBnClickedBtnMidiTracing)
 	ON_BN_CLICKED(IDC_BTN_NOTE_TRAINING, &CMIDISampleDlg::OnBnClickedBtnNoteTraining)
+	ON_BN_CLICKED(IDC_BTN_TRAINER_SETTINGS, &CMIDISampleDlg::OnBnClickedBtnTrainerSettings)
 END_MESSAGE_MAP()
 
 
@@ -107,7 +110,7 @@ void CMIDISampleDlg::ArrangControls(UINT nTabIndex)
 	rcClient.NormalizeRect();
 	rcClient.top = 100;
 	rcClient.NormalizeRect();
-	rcClient.top += 20;
+	rcClient.top += 21;
 	rcClient.DeflateRect(4,4,4,4);
 	rcControl = rcClient;
 	rcControl.top = rcControl.bottom-40;
@@ -144,6 +147,11 @@ BOOL CMIDISampleDlg::OnInitDialog()
 	m_edtMidiStreamLogs.SetWindowContextHelpId(1);
 	m_btnClearTraceLogs.SetWindowContextHelpId(1);
 	m_btnTrainerSettings.SetWindowContextHelpId(2);
+#ifdef DEBUG
+	m_btnNoteTraining.EnableWindow(TRUE);
+#else
+	m_btnNoteTraining.EnableWindow(FALSE);
+#endif
 
 	InitializeDevices();
 	m_btnMidiTracing.SetFont(&m_FontBold);
@@ -276,8 +284,10 @@ void CMIDISampleDlg::CloseDevices()
 				m_cboMidiInputDevices.EnableWindow(TRUE);
 				m_cboMidiOutputDevices.EnableWindow(TRUE);
 				m_btnStart.EnableWindow(TRUE);
+#ifndef DEBUG
 				m_btnNoteTraining.EnableWindow(FALSE);
 				OnBnClickedBtnMidiTracing();
+#endif
 			}
 		}
 		else
@@ -442,7 +452,9 @@ void CMIDISampleDlg::OnBnClickedBtnStart()
 						m_cboMidiOutputDevices.EnableWindow(FALSE);
 						m_btnStart.EnableWindow(FALSE);
 						m_bRecording = TRUE;
+#ifndef DEBUG
 						m_btnNoteTraining.EnableWindow(TRUE);
+#endif
 					}
 					else
 					{
@@ -487,4 +499,13 @@ void CMIDISampleDlg::OnBnClickedBtnNoteTraining()
 	m_btnNoteTraining.SetFont(&m_FontBold);
 	m_btnMidiTracing.SetFont(GetFont());
 	ArrangControls(2);
+}
+
+
+void CMIDISampleDlg::OnBnClickedBtnTrainerSettings()
+{
+	CDlgNoteTrainerSettings dlgSettings(this, CNoteTrainerSettings::GetInstance());
+	if(dlgSettings.DoModal() != IDOK)
+		return;
+	m_TrainerSheet.Invalidate();
 }

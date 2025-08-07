@@ -33,10 +33,16 @@
     <ClInclude Include="MidiInputThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DlgTrainerSettings.h">
+    <ClInclude Include="TrainerSheet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TrainerSheet.h">
+    <ClInclude Include="NoteTrainerSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgNoteTrainerSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorPreviewLabel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,10 +59,16 @@
     <ClCompile Include="MidiInputThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DlgTrainerSettings.cpp">
+    <ClCompile Include="TrainerSheet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TrainerSheet.cpp">
+    <ClCompile Include="NoteTrainerSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgNoteTrainerSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorPreviewLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

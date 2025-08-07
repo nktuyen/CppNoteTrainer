@@ -71,4 +71,5 @@ public:
 	CButton m_btnMidiTracing;
 	afx_msg void OnBnClickedBtnMidiTracing();
 	afx_msg void OnBnClickedBtnNoteTraining();
+	afx_msg void OnBnClickedBtnTrainerSettings();
 };

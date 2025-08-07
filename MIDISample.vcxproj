@@ -96,20 +96,24 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DlgTrainerSettings.h" />
+    <ClInclude Include="ColorPreviewLabel.h" />
+    <ClInclude Include="DlgNoteTrainerSettings.h" />
     <ClInclude Include="MidiInputThread.h" />
     <ClInclude Include="MIDISample.h" />
     <ClInclude Include="MIDISampleDlg.h" />
+    <ClInclude Include="NoteTrainerSettings.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TrainerSheet.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DlgTrainerSettings.cpp" />
+    <ClCompile Include="ColorPreviewLabel.cpp" />
+    <ClCompile Include="DlgNoteTrainerSettings.cpp" />
     <ClCompile Include="MidiInputThread.cpp" />
     <ClCompile Include="MIDISample.cpp" />
     <ClCompile Include="MIDISampleDlg.cpp" />
+    <ClCompile Include="NoteTrainerSettings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

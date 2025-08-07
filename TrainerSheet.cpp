@@ -1,13 +1,16 @@
 #include "stdafx.h"
 #include "TrainerSheet.h"
 #include "resource.h"
+#include "NoteTrainerSettings.h"
 
-CRowInfo::CRowInfo(int index, int height, BOOL visible, BOOL line)
+
+CRowInfo::CRowInfo(int index, int height, BOOL visible, int line)
 	: CObject()
 	, Index(index)
 	, Height(height)
 	, Visible(visible)
-	, IsLine(line)
+	, Line(line)
+	, Top(-1)
 {
 
 }
@@ -15,12 +18,7 @@ CRowInfo::CRowInfo(int index, int height, BOOL visible, BOOL line)
 CTrainerSheet::CTrainerSheet(void)
 	: m_bInitialize(FALSE)
 {
-	m_clrBackground = RGB(255, 255, 255);
-	m_szSheetSize.SetSize(0, 300);
-	m_nPenWidth = 2;
-	m_nMaxRows = 11;
-	m_nPadding = 10;
-	m_clrSheetBorder = RGB(0, 255, 0);
+	
 }
 
 
@@ -42,65 +40,65 @@ void CTrainerSheet::DrawItem(LPDRAWITEMSTRUCT lpDrawStruct)
 
 	CDC *pDc = CDC::FromHandle(lpDrawStruct->hDC);
 	CRect rcDraw = CRect(lpDrawStruct->rcItem);
-	rcDraw.DeflateRect(m_nPadding, m_nPadding, m_nPadding, m_nPadding);
 	UINT nWidth = rcDraw.Width();
 	UINT nHeight = rcDraw.Height();
-	UINT nNoteHeight = 0;
+	UINT nRowHeight = 0;
 	UINT nKeyTop = 0;
 	UINT nKeyHeight = 0;
 	if(pDc)
 	{
-		pDc->FillRect(rcDraw, &m_brBackground);
-		pDc->SetBkMode(TRANSPARENT);
-		pDc->SelectObject(m_penSheetBorder);
+		//Draw window background
+		CBrush brBackground;
+		brBackground.CreateSolidBrush(CNoteTrainerSettings::GetInstance()->m_clrBackground);
+		pDc->SelectObject(brBackground);
+		pDc->FillRect(rcDraw, &brBackground);
+		//Draw sheet background
 		CRect rcSheet;
 		rcSheet.left = rcDraw.left;
-		rcSheet.top = rcDraw.top + (rcDraw.Height()/2)-(m_szSheetSize.cy/2);
+		rcSheet.top = rcDraw.top + (rcDraw.Height()/2)-(CNoteTrainerSettings::GetInstance()->m_nSheetHeight/2);
 		rcSheet.right = rcDraw.right;
-		rcSheet.bottom = rcSheet.top + m_szSheetSize.cy;
-		rcSheet.DeflateRect(m_nPadding, m_nPadding, m_nPadding, m_nPadding);
-		nNoteHeight = m_szSheetSize.cy/(m_nMaxRows*2);
-		pDc->Rectangle(rcSheet);
-		for(UINT nRow=0;nRow<(m_nMaxRows*2);nRow++)
+		rcSheet.bottom = rcSheet.top + CNoteTrainerSettings::GetInstance()->m_nSheetHeight;
+		CBrush brSheetBackground;
+		brSheetBackground.CreateSolidBrush(CNoteTrainerSettings::GetInstance()->m_clrSheetBackground);
+		pDc->SelectObject(brSheetBackground);
+		pDc->FillRect(rcSheet, &brSheetBackground);
+
+		//Draw sheet border
+		if(CNoteTrainerSettings::GetInstance()->m_nSheetBorderWidth > 0)
 		{
-			CRowInfo* pRowInfo =(CRowInfo*) m_arrRowInfos.GetAt(nRow);
-			if(pRowInfo != NULL)
-			{
-				if(pRowInfo->Visible && pRowInfo->IsLine)
-				{
-					nKeyHeight +=pRowInfo->Height;
-					if(nKeyTop == 0)
-						nKeyTop = nRow*nKeyHeight;
-				}
-			}
+			CPen penSheetBorder;
+			penSheetBorder.CreatePen(PS_SOLID, CNoteTrainerSettings::GetInstance()->m_nSheetBorderWidth, CNoteTrainerSettings::GetInstance()->m_clrSheetBorderColor);
+			pDc->SelectObject(penSheetBorder);
+			pDc->Rectangle(rcSheet);
 		}
-		//pDc->StretchBlt(rcSheet.left, rcDraw.top+nKeyTop-nNoteHeight*1, 64, nKeyHeight+nNoteHeight*1, &m_dcSol, 0, 0, 64, 128,  SRCCOPY);
-
-		for(UINT nRow=0;nRow<(m_nMaxRows*2);nRow++)
+		//Draw sheet contents
+		rcSheet.DeflateRect(CNoteTrainerSettings::GetInstance()->m_nSheetPadding, CNoteTrainerSettings::GetInstance()->m_nSheetPadding, CNoteTrainerSettings::GetInstance()->m_nSheetPadding, CNoteTrainerSettings::GetInstance()->m_nSheetPadding);
+		nRowHeight = CNoteTrainerSettings::GetInstance()->m_nSheetHeight/(m_arrRowInfos.GetCount()+1);
+		for(INT_PTR nRow=0;nRow<m_arrRowInfos.GetCount();nRow++)
 		{
-			CRowInfo* pRowInfo =(CRowInfo*) m_arrRowInfos.GetAt(nRow);
-			if(pRowInfo != NULL)
+			CRowInfo* pRowInfo = (CRowInfo*)m_arrRowInfos.GetAt(nRow);
+			if(pRowInfo)
 			{
-				pDc->SelectObject(m_penSheetBorder);
-				rcSheet.top+=pRowInfo->Height;
-				rcSheet.bottom = rcSheet.top + pRowInfo->Height;
-				pDc->MoveTo(rcSheet.left, rcSheet.top);
-				pDc->LineTo(rcSheet.right, rcSheet.top);
-
-
+				pRowInfo->Height = nRowHeight;
+				pRowInfo->Top = rcSheet.top + (nRow*nRowHeight);
 				if(pRowInfo->Visible)
 				{
-					if(pRowInfo->IsLine)
-						pDc->SelectObject(m_penVisibleLines);
+					if(pRowInfo->Line != 0)
+					{
+						CPen penLine;
+						penLine.CreatePen(PS_SOLID, CNoteTrainerSettings::GetInstance()->m_nLineWidth, CNoteTrainerSettings::GetInstance()->m_clrLine);
+						pDc->SelectObject(penLine);
+						pDc->MoveTo(rcSheet.left, pRowInfo->Top);
+						pDc->LineTo(rcSheet.right, pRowInfo->Top);
+					}
 					else
-						pDc->SelectObject(m_penVisibleLines2);
+					{
+					}
 				}
 				else
 				{
-					pDc->SelectObject(m_penInvisibleLines);
+				
 				}
-				pDc->MoveTo(rcSheet.left+10, rcSheet.top);
-				pDc->LineTo(rcSheet.right, rcSheet.top);
 			}
 		}
 	}
@@ -110,14 +108,8 @@ void CTrainerSheet::OnInitialize()
 {
 	if(!m_bInitialize)
 	{
-		UINT nNoteHeight = m_szSheetSize.cy/(m_nMaxRows*2);
-		for(int index=0;index<(int)(m_nMaxRows*2);index++)
-		{
-			BOOL bVisible = FALSE;
-			if(index >= 10 && index <= 20)
-				bVisible = TRUE;
-			m_arrRowInfos.Add(new CRowInfo(index, nNoteHeight, bVisible, index%2!=0));
-		}
+		//Create row infos
+		CRowInfo* pRow = new CRowInfo(0, 0, FALSE);
 
 		LOGFONT lf = {0};
 		ZeroMemory(&lf, sizeof(LOGFONT));
@@ -129,7 +121,6 @@ void CTrainerSheet::OnInitialize()
 			if(m_font.CreateFontIndirect(&lf))
 				SetFont(&m_font);
 		}
-		m_brBackground.CreateSolidBrush(m_clrBackground);
 
 		m_dcSol.CreateCompatibleDC(CDC::FromHandle(::GetDC(0)));
 		HBITMAP hBmpSolKey = LoadBitmap(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_SOL_KEY));
@@ -143,11 +134,6 @@ void CTrainerSheet::OnInitialize()
 		{
 			m_dcFa.SelectObject(hBmpFaKey);
 		}
-
-		m_penVisibleLines.CreatePen(PS_SOLID, m_nPenWidth, RGB(0,0,0));
-		m_penVisibleLines2.CreatePen(PS_DASH, 1, RGB(255,0,0));
-		m_penInvisibleLines.CreatePen(PS_SOLID, m_nPenWidth, m_clrBackground);
-		m_penSheetBorder.CreatePen(PS_SOLID, m_nPenWidth, m_clrSheetBorder);
 		//
 		m_bInitialize = TRUE;
 	}
