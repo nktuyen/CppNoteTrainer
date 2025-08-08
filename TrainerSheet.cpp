@@ -109,7 +109,7 @@ void CTrainerSheet::OnInitialize()
 	if(!m_bInitialize)
 	{
 		//Create row infos
-		CRowInfo* pRow = new CRowInfo(0, 0, FALSE);
+		
 
 		LOGFONT lf = {0};
 		ZeroMemory(&lf, sizeof(LOGFONT));

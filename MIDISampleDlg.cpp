@@ -431,7 +431,8 @@ void CMIDISampleDlg::OnBnClickedBtnStart()
 				MidiDeviceInfo* pOutputDeviceInfo = (MidiDeviceInfo*)m_cboMidiOutputDevices.GetItemDataPtr(nIndex);
 				if(pOutputDeviceInfo != nullptr)
 				{
-					res = midiOutOpen(&m_hMidiOutputDevice, m_cboMidiOutputDevices.GetCurSel(), NULL, NULL, CALLBACK_NULL);
+					if(midiOutOpen(&m_hMidiOutputDevice, m_cboMidiOutputDevices.GetCurSel(), NULL, NULL, CALLBACK_NULL) == MMSYSERR_NOERROR)
+						midiOutSetVolume(m_hMidiOutputDevice, 0xFFFF);
 				}
 			}
 
